@@ -1,17 +1,20 @@
-# Use OpenJDK image
+# Use Java 17 base image
 FROM openjdk:17-jdk-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy the pom.xml and source code
+# Copy everything
 COPY . .
 
-# Package the application
+# Ensure Maven wrapper is executable
+RUN chmod +x mvnw
+
+# Build project using Maven wrapper
 RUN ./mvnw clean package -DskipTests
 
-# Expose the port
+# Expose application port
 EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["java","-jar","target/*.jar"]
+# Run the jar file
+ENTRYPOINT ["java", "-jar", "target/outpass-management-1.0.0.jar"]

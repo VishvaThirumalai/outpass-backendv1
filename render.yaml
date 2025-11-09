@@ -6,20 +6,10 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: my-postgres
-          property: connectionString
+        value: jdbc:postgresql://dpg-d487kv1r0fns73fsjpjg-a:5432/outpass_db
       - key: DATABASE_USER
-        fromDatabase:
-          name: my-postgres
-          property: user
+        value: outpass_db_user
       - key: DATABASE_PASSWORD
-        fromDatabase:
-          name: my-postgres
-          property: password
-      - key: app.jwt.secret
+        value: sngUgzVox2Kn2nYy6sGQT9AzIn7fxG1m
+      - key: APP_JWT_SECRET
         value: any_random_secret_key_here
-
-databases:
-  - name: my-postgres
-    plan: free

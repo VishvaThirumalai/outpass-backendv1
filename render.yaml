@@ -18,7 +18,7 @@ services:
           name: my-postgres
           property: password
       - key: app.jwt.secret
-        value: mySuperSecretJWTKey123
+        value: any_random_secret_key_here
 
 databases:
   - name: my-postgres

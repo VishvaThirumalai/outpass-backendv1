@@ -71,7 +71,8 @@ public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospe
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
         "https://outpass-frontendv1.onrender.com",
-        "https://outpass-v2-testing.onrender.com"));
+        "https://outpass-v2-testing.onrender.com",
+        "http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setExposedHeaders(Arrays.asList("Authorization"));

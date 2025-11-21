@@ -268,10 +268,10 @@ public class AdminController {
                     .body(ApiResponse.error("Access denied. SUPER_ADMIN permission required to create admins."));
             }
             
-            // Create registration request
+            // Create registration request - USE PROVIDED USERNAME
             AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
-            registerRequest.setUsername(generateUsername(request.getFullName(), "ADM"));
-            registerRequest.setPassword(generateTempPassword());
+            registerRequest.setUsername(request.getUsername()); // Use provided username
+            registerRequest.setPassword(request.getPassword()); // Use provided password
             registerRequest.setFullName(request.getFullName());
             registerRequest.setEmail(request.getEmail());
             registerRequest.setMobileNumber(request.getMobileNumber());
@@ -282,7 +282,7 @@ public class AdminController {
             
             authService.registerUser(registerRequest);
             
-            ApiResponse<String> response = ApiResponse.success("Admin created successfully with temporary password");
+            ApiResponse<String> response = ApiResponse.success("Admin created successfully");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             ApiResponse<String> response = ApiResponse.error("Admin creation failed: " + e.getMessage());
@@ -619,181 +619,181 @@ public class AdminController {
         }
     }
     
+    // Update registerStudent method - USE PROVIDED USERNAME
+    @PostMapping("/register/student")
+    public ResponseEntity<ApiResponse<String>> registerStudent(
+            @RequestBody RegisterStudentRequest request,
+            @RequestHeader("Authorization") String token) {
+        try {
+            // Verify admin access
+            Claims claims = authService.validateToken(token.replace("Bearer ", ""));
+            UserRole role = UserRole.valueOf(claims.get("role", String.class));
+            
+            if (role != UserRole.ADMIN) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Only administrators can register students"));
+            }
+            
+            // Create registration request with ALL fields - USE PROVIDED USERNAME
+            AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
+            registerRequest.setUsername(request.getUsername()); // Use provided username
+            registerRequest.setPassword(request.getPassword()); // Use provided password
+            registerRequest.setFullName(request.getFullName());
+            registerRequest.setEmail(request.getEmail());
+            registerRequest.setMobileNumber(request.getMobileNumber());
+            registerRequest.setRole("STUDENT");
+            registerRequest.setRollNumber(request.getRollNumber());
+            registerRequest.setCourse(request.getCourse());
+            registerRequest.setDegree(request.getDegree());
+            registerRequest.setYearOfStudy(request.getYearOfStudy());
+            registerRequest.setHostelName(request.getHostelName());
+            registerRequest.setRoomNumber(request.getRoomNumber());
+            registerRequest.setAddress(request.getAddress());
+            registerRequest.setGuardianName(request.getGuardianName());
+            registerRequest.setGuardianMobile(request.getGuardianMobile());
+            registerRequest.setGuardianRelation(request.getGuardianRelation());
+            
+            authService.registerUser(registerRequest);
+            
+            ApiResponse<String> response = ApiResponse.success("Student registered successfully");
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            ApiResponse<String> response = ApiResponse.error("Student registration failed: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Update registerWarden method - USE PROVIDED USERNAME
+    @PostMapping("/register/warden")
+    public ResponseEntity<ApiResponse<String>> registerWarden(
+            @RequestBody RegisterWardenRequest request,
+            @RequestHeader("Authorization") String token) {
+        try {
+            // Verify admin access
+            Claims claims = authService.validateToken(token.replace("Bearer ", ""));
+            UserRole role = UserRole.valueOf(claims.get("role", String.class));
+            
+            if (role != UserRole.ADMIN) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Only administrators can register wardens"));
+            }
+            
+            AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
+            registerRequest.setUsername(request.getUsername()); // Use provided username
+            registerRequest.setPassword(request.getPassword()); // Use provided password
+            registerRequest.setFullName(request.getFullName());
+            registerRequest.setEmail(request.getEmail());
+            registerRequest.setMobileNumber(request.getMobileNumber());
+            registerRequest.setRole("WARDEN");
+            registerRequest.setEmployeeId(request.getEmployeeId());
+            registerRequest.setDepartment(request.getDepartment());
+            registerRequest.setDesignation(request.getDesignation());
+            registerRequest.setHostelAssigned(request.getHostelAssigned());
+            registerRequest.setYearsOfExperience(request.getYearsOfExperience());
+            registerRequest.setOfficeLocation(request.getOfficeLocation());
+            registerRequest.setOfficeHours(request.getOfficeHours());
+            
+            authService.registerUser(registerRequest);
+            
+            ApiResponse<String> response = ApiResponse.success("Warden registered successfully");
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            ApiResponse<String> response = ApiResponse.error("Warden registration failed: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Update registerSecurity method - USE PROVIDED USERNAME
+    @PostMapping("/register/security")
+    public ResponseEntity<ApiResponse<String>> registerSecurity(
+            @RequestBody RegisterSecurityRequest request,
+            @RequestHeader("Authorization") String token) {
+        try {
+            // Verify admin access
+            Claims claims = authService.validateToken(token.replace("Bearer ", ""));
+            UserRole role = UserRole.valueOf(claims.get("role", String.class));
+            
+            if (role != UserRole.ADMIN) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Only administrators can register security personnel"));
+            }
+            
+            AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
+            registerRequest.setUsername(request.getUsername()); // Use provided username
+            registerRequest.setPassword(request.getPassword()); // Use provided password
+            registerRequest.setFullName(request.getFullName());
+            registerRequest.setEmail(request.getEmail());
+            registerRequest.setMobileNumber(request.getMobileNumber());
+            registerRequest.setRole("SECURITY");
+            registerRequest.setSecurityId(request.getSecurityId());
+            registerRequest.setShift(request.getShift());
+            registerRequest.setGateAssigned(request.getGateAssigned());
+            registerRequest.setSupervisorName(request.getSupervisorName());
+            registerRequest.setSupervisorContact(request.getSupervisorContact());
+            registerRequest.setYearsOfService(request.getYearsOfService());
+            registerRequest.setSecurityClearanceLevel(request.getSecurityClearanceLevel());
+            
+            authService.registerUser(registerRequest);
+            
+            ApiResponse<String> response = ApiResponse.success("Security personnel registered successfully");
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            ApiResponse<String> response = ApiResponse.error("Security registration failed: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Update registerAdmin method - USE PROVIDED USERNAME
+    @PostMapping("/register/admin")
+    public ResponseEntity<ApiResponse<String>> registerAdmin(
+            @RequestBody RegisterAdminRequest request,
+            @RequestHeader("Authorization") String token) {
+        try {
+            // Verify admin access and check permission level
+            Claims claims = authService.validateToken(token.replace("Bearer ", ""));
+            UserRole role = UserRole.valueOf(claims.get("role", String.class));
+            
+            if (role != UserRole.ADMIN) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Only administrators can register other admins"));
+            }
+            
+            // Get admin user to check permission level
+            String username = claims.getSubject();
+            User adminUser = authService.findByUsername(username)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+            
+            String permissionLevel = adminService.getAdminPermissionLevel(adminUser.getId());
+            
+            // Only SUPER_ADMIN can register other admins
+            if (!"SUPER_ADMIN".equals(permissionLevel)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied. SUPER_ADMIN permission required to register admins."));
+            }
+            
+            AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
+            registerRequest.setUsername(request.getUsername()); // Use provided username
+            registerRequest.setPassword(request.getPassword()); // Use provided password
+            registerRequest.setFullName(request.getFullName());
+            registerRequest.setEmail(request.getEmail());
+            registerRequest.setMobileNumber(request.getMobileNumber());
+            registerRequest.setRole("ADMIN");
+            registerRequest.setDepartment(request.getDepartment());
+            registerRequest.setDesignation(request.getDesignation());
+            registerRequest.setPermissionLevel(request.getPermissionLevel());
+            registerRequest.setAdminId(request.getAdminId());
+            
+            authService.registerUser(registerRequest);
+            
+            ApiResponse<String> response = ApiResponse.success("Admin registered successfully");
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            ApiResponse<String> response = ApiResponse.error("Admin registration failed: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
     
-// Update registerStudent method
-@PostMapping("/register/student")
-public ResponseEntity<ApiResponse<String>> registerStudent(
-        @RequestBody RegisterStudentRequest request,
-        @RequestHeader("Authorization") String token) {
-    try {
-        // Verify admin access
-        Claims claims = authService.validateToken(token.replace("Bearer ", ""));
-        UserRole role = UserRole.valueOf(claims.get("role", String.class));
-        
-        if (role != UserRole.ADMIN) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("Only administrators can register students"));
-        }
-        
-        // Create registration request with ALL fields
-        AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
-        registerRequest.setUsername(generateUsername(request.getFullName(), "STU"));
-        registerRequest.setPassword(generateTempPassword());
-        registerRequest.setFullName(request.getFullName());
-        registerRequest.setEmail(request.getEmail());
-        registerRequest.setMobileNumber(request.getMobileNumber());
-        registerRequest.setRole("STUDENT");
-        registerRequest.setRollNumber(request.getRollNumber());
-        registerRequest.setCourse(request.getCourse());
-        registerRequest.setDegree(request.getDegree());
-        registerRequest.setYearOfStudy(request.getYearOfStudy());
-        registerRequest.setHostelName(request.getHostelName());
-        registerRequest.setRoomNumber(request.getRoomNumber());
-        registerRequest.setAddress(request.getAddress());
-        registerRequest.setGuardianName(request.getGuardianName());
-        registerRequest.setGuardianMobile(request.getGuardianMobile());
-        registerRequest.setGuardianRelation(request.getGuardianRelation());
-        
-        authService.registerUser(registerRequest);
-        
-        ApiResponse<String> response = ApiResponse.success("Student registered successfully with temporary password");
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    } catch (Exception e) {
-        ApiResponse<String> response = ApiResponse.error("Student registration failed: " + e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-}
-
-// Update registerWarden method
-@PostMapping("/register/warden")
-public ResponseEntity<ApiResponse<String>> registerWarden(
-        @RequestBody RegisterWardenRequest request,
-        @RequestHeader("Authorization") String token) {
-    try {
-        // Verify admin access
-        Claims claims = authService.validateToken(token.replace("Bearer ", ""));
-        UserRole role = UserRole.valueOf(claims.get("role", String.class));
-        
-        if (role != UserRole.ADMIN) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("Only administrators can register wardens"));
-        }
-        
-        AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
-        registerRequest.setUsername(generateUsername(request.getFullName(), "WRD"));
-        registerRequest.setPassword(generateTempPassword());
-        registerRequest.setFullName(request.getFullName());
-        registerRequest.setEmail(request.getEmail());
-        registerRequest.setMobileNumber(request.getMobileNumber());
-        registerRequest.setRole("WARDEN");
-        registerRequest.setEmployeeId(request.getEmployeeId());
-        registerRequest.setDepartment(request.getDepartment());
-        registerRequest.setDesignation(request.getDesignation());
-        registerRequest.setHostelAssigned(request.getHostelAssigned());
-        registerRequest.setYearsOfExperience(request.getYearsOfExperience());
-        registerRequest.setOfficeLocation(request.getOfficeLocation());
-        registerRequest.setOfficeHours(request.getOfficeHours());
-        
-        authService.registerUser(registerRequest);
-        
-        ApiResponse<String> response = ApiResponse.success("Warden registered successfully with temporary password");
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    } catch (Exception e) {
-        ApiResponse<String> response = ApiResponse.error("Warden registration failed: " + e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-}
-
-// Update registerSecurity method
-@PostMapping("/register/security")
-public ResponseEntity<ApiResponse<String>> registerSecurity(
-        @RequestBody RegisterSecurityRequest request,
-        @RequestHeader("Authorization") String token) {
-    try {
-        // Verify admin access
-        Claims claims = authService.validateToken(token.replace("Bearer ", ""));
-        UserRole role = UserRole.valueOf(claims.get("role", String.class));
-        
-        if (role != UserRole.ADMIN) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("Only administrators can register security personnel"));
-        }
-        
-        AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
-        registerRequest.setUsername(generateUsername(request.getFullName(), "SEC"));
-        registerRequest.setPassword(generateTempPassword());
-        registerRequest.setFullName(request.getFullName());
-        registerRequest.setEmail(request.getEmail());
-        registerRequest.setMobileNumber(request.getMobileNumber());
-        registerRequest.setRole("SECURITY");
-        registerRequest.setSecurityId(request.getSecurityId());
-        registerRequest.setShift(request.getShift());
-        registerRequest.setGateAssigned(request.getGateAssigned());
-        registerRequest.setSupervisorName(request.getSupervisorName());
-        registerRequest.setSupervisorContact(request.getSupervisorContact());
-        registerRequest.setYearsOfService(request.getYearsOfService());
-        registerRequest.setSecurityClearanceLevel(request.getSecurityClearanceLevel());
-        
-        authService.registerUser(registerRequest);
-        
-        ApiResponse<String> response = ApiResponse.success("Security personnel registered successfully with temporary password");
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    } catch (Exception e) {
-        ApiResponse<String> response = ApiResponse.error("Security registration failed: " + e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-}
-
-// Update registerAdmin method
-@PostMapping("/register/admin")
-public ResponseEntity<ApiResponse<String>> registerAdmin(
-        @RequestBody RegisterAdminRequest request,
-        @RequestHeader("Authorization") String token) {
-    try {
-        // Verify admin access and check permission level
-        Claims claims = authService.validateToken(token.replace("Bearer ", ""));
-        UserRole role = UserRole.valueOf(claims.get("role", String.class));
-        
-        if (role != UserRole.ADMIN) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("Only administrators can register other admins"));
-        }
-        
-        // Get admin user to check permission level
-        String username = claims.getSubject();
-        User adminUser = authService.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-        
-        String permissionLevel = adminService.getAdminPermissionLevel(adminUser.getId());
-        
-        // Only SUPER_ADMIN can register other admins
-        if (!"SUPER_ADMIN".equals(permissionLevel)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("Access denied. SUPER_ADMIN permission required to register admins."));
-        }
-        
-        AuthController.RegisterRequest registerRequest = new AuthController.RegisterRequest();
-        registerRequest.setUsername(generateUsername(request.getFullName(), "ADM"));
-        registerRequest.setPassword(generateTempPassword());
-        registerRequest.setFullName(request.getFullName());
-        registerRequest.setEmail(request.getEmail());
-        registerRequest.setMobileNumber(request.getMobileNumber());
-        registerRequest.setRole("ADMIN");
-        registerRequest.setDepartment(request.getDepartment());
-        registerRequest.setDesignation(request.getDesignation());
-        registerRequest.setPermissionLevel(request.getPermissionLevel());
-        registerRequest.setAdminId(request.getAdminId());
-        
-        authService.registerUser(registerRequest);
-        
-        ApiResponse<String> response = ApiResponse.success("Admin registered successfully with temporary password");
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    } catch (Exception e) {
-        ApiResponse<String> response = ApiResponse.error("Admin registration failed: " + e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-}
-    // Helper methods
+    // Helper methods (keep these for other uses)
     private String generateUsername(String fullName, String prefix) {
         String baseName = fullName.replaceAll("\\s+", "").toLowerCase();
         return prefix + "_" + baseName + "_" + System.currentTimeMillis();
@@ -803,128 +803,129 @@ public ResponseEntity<ApiResponse<String>> registerAdmin(
         return "TempPass123!";
     }
     
-    // DTO classes
+    // DTO classes - UPDATED WITH PROPER DATA TYPES
+
+public static class UserUpdateRequest {
+    private String fullName;
+    private String email;
+    private String mobileNumber;
+    private String course;
+    private String degree;
+    private Integer yearOfStudy;
+    private String hostelName;
+    private String roomNumber;
+    private String department;
+    private String designation;
+    private String hostelAssigned;
+    private String shift;
+    private String gateAssigned;
+    private String adminId;
+    private String permissionLevel;
     
-    public static class UserUpdateRequest {
-        private String fullName;
-        private String email;
-        private String mobileNumber;
-        private String course;
-        private String degree;
-        private Integer yearOfStudy;
-        private String hostelName;
-        private String roomNumber;
-        private String department;
-        private String designation;
-        private String hostelAssigned;
-        private String shift;
-        private String gateAssigned;
-        private String adminId;
-        private String permissionLevel;
-        
-        // Getters and Setters
-        public String getFullName() { return fullName; }
-        public void setFullName(String fullName) { this.fullName = fullName; }
-        
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        
-        public String getMobileNumber() { return mobileNumber; }
-        public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
-        
-        public String getCourse() { return course; }
-        public void setCourse(String course) { this.course = course; }
-        
-        public String getDegree() { return degree; }
-        public void setDegree(String degree) { this.degree = degree; }
-        
-        public Integer getYearOfStudy() { return yearOfStudy; }
-        public void setYearOfStudy(Integer yearOfStudy) { this.yearOfStudy = yearOfStudy; }
-        
-        public String getHostelName() { return hostelName; }
-        public void setHostelName(String hostelName) { this.hostelName = hostelName; }
-        
-        public String getRoomNumber() { return roomNumber; }
-        public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
-        
-        public String getDepartment() { return department; }
-        public void setDepartment(String department) { this.department = department; }
-        
-        public String getDesignation() { return designation; }
-        public void setDesignation(String designation) { this.designation = designation; }
-        
-        public String getHostelAssigned() { return hostelAssigned; }
-        public void setHostelAssigned(String hostelAssigned) { this.hostelAssigned = hostelAssigned; }
-        
-        public String getShift() { return shift; }
-        public void setShift(String shift) { this.shift = shift; }
-        
-        public String getGateAssigned() { return gateAssigned; }
-        public void setGateAssigned(String gateAssigned) { this.gateAssigned = gateAssigned; }
-        
-        public String getAdminId() { return adminId; }
-        public void setAdminId(String adminId) { this.adminId = adminId; }
-        
-        public String getPermissionLevel() { return permissionLevel; }
-        public void setPermissionLevel(String permissionLevel) { this.permissionLevel = permissionLevel; }
-    }
+    // Getters and Setters
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
     
-    public static class AdminUpdateRequest {
-        private String fullName;
-        private String email;
-        private String mobileNumber;
-        private String department;
-        private String designation;
-        private String adminId;
-        private String permissionLevel;
-        
-        // Getters and Setters
-        public String getFullName() { return fullName; }
-        public void setFullName(String fullName) { this.fullName = fullName; }
-        
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        
-        public String getMobileNumber() { return mobileNumber; }
-        public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
-        
-        public String getDepartment() { return department; }
-        public void setDepartment(String department) { this.department = department; }
-        
-        public String getDesignation() { return designation; }
-        public void setDesignation(String designation) { this.designation = designation; }
-        
-        public String getAdminId() { return adminId; }
-        public void setAdminId(String adminId) { this.adminId = adminId; }
-        
-        public String getPermissionLevel() { return permissionLevel; }
-        public void setPermissionLevel(String permissionLevel) { this.permissionLevel = permissionLevel; }
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
     
-    public static class StatusUpdateRequest {
-        private boolean active;
-        
-        public boolean isActive() { return active; }
-        public void setActive(boolean active) { this.active = active; }
-    }
+    public String getMobileNumber() { return mobileNumber; }
+    public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
     
-    public static class SimplePasswordResetRequest {
-        private String username;
-        private String mobileNumber;
-        private String newPassword;
-        
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        
-        public String getMobileNumber() { return mobileNumber; }
-        public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
-        
-        public String getNewPassword() { return newPassword; }
-        public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
-    }
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
     
+    public String getDegree() { return degree; }
+    public void setDegree(String degree) { this.degree = degree; }
+    
+    public Integer getYearOfStudy() { return yearOfStudy; }
+    public void setYearOfStudy(Integer yearOfStudy) { this.yearOfStudy = yearOfStudy; }
+    
+    public String getHostelName() { return hostelName; }
+    public void setHostelName(String hostelName) { this.hostelName = hostelName; }
+    
+    public String getRoomNumber() { return roomNumber; }
+    public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
+    
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
+    
+    public String getDesignation() { return designation; }
+    public void setDesignation(String designation) { this.designation = designation; }
+    
+    public String getHostelAssigned() { return hostelAssigned; }
+    public void setHostelAssigned(String hostelAssigned) { this.hostelAssigned = hostelAssigned; }
+    
+    public String getShift() { return shift; }
+    public void setShift(String shift) { this.shift = shift; }
+    
+    public String getGateAssigned() { return gateAssigned; }
+    public void setGateAssigned(String gateAssigned) { this.gateAssigned = gateAssigned; }
+    
+    public String getAdminId() { return adminId; }
+    public void setAdminId(String adminId) { this.adminId = adminId; }
+    
+    public String getPermissionLevel() { return permissionLevel; }
+    public void setPermissionLevel(String permissionLevel) { this.permissionLevel = permissionLevel; }
+}
+
+public static class AdminUpdateRequest {
+    private String fullName;
+    private String email;
+    private String mobileNumber;
+    private String department;
+    private String designation;
+    private String adminId;
+    private String permissionLevel;
+    
+    // Getters and Setters
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    
+    public String getMobileNumber() { return mobileNumber; }
+    public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
+    
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
+    
+    public String getDesignation() { return designation; }
+    public void setDesignation(String designation) { this.designation = designation; }
+    
+    public String getAdminId() { return adminId; }
+    public void setAdminId(String adminId) { this.adminId = adminId; }
+    
+    public String getPermissionLevel() { return permissionLevel; }
+    public void setPermissionLevel(String permissionLevel) { this.permissionLevel = permissionLevel; }
+}
+
+public static class StatusUpdateRequest {
+    private boolean active;
+    
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+}
+
+public static class SimplePasswordResetRequest {
+    private String username;
+    private String mobileNumber;
+    private String newPassword;
+    
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    
+    public String getMobileNumber() { return mobileNumber; }
+    public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
+    
+    public String getNewPassword() { return newPassword; }
+    public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
+}
 
 public static class RegisterStudentRequest {
+    private String username;
+    private String password;
     private String fullName;
     private String email;
     private String mobileNumber;
@@ -940,6 +941,12 @@ public static class RegisterStudentRequest {
     private String guardianRelation;
     
     // Getters and Setters
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     
@@ -981,6 +988,8 @@ public static class RegisterStudentRequest {
 }
 
 public static class RegisterWardenRequest {
+    private String username;
+    private String password;
     private String fullName;
     private String email;
     private String mobileNumber;
@@ -993,6 +1002,12 @@ public static class RegisterWardenRequest {
     private String officeHours;
     
     // Getters and Setters
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     
@@ -1025,6 +1040,8 @@ public static class RegisterWardenRequest {
 }
 
 public static class RegisterSecurityRequest {
+    private String username;
+    private String password;
     private String fullName;
     private String email;
     private String mobileNumber;
@@ -1037,6 +1054,12 @@ public static class RegisterSecurityRequest {
     private String securityClearanceLevel;
     
     // Getters and Setters
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     
@@ -1069,6 +1092,8 @@ public static class RegisterSecurityRequest {
 }
 
 public static class RegisterAdminRequest {
+    private String username;
+    private String password;
     private String fullName;
     private String email;
     private String mobileNumber;
@@ -1078,6 +1103,12 @@ public static class RegisterAdminRequest {
     private String adminId;
     
     // Getters and Setters
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     

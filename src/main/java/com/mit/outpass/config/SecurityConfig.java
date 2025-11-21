@@ -72,7 +72,8 @@ public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospe
         configuration.setAllowedOrigins(Arrays.asList(
         "https://outpass-frontendv1.onrender.com",
         "https://outpass-v2-testing.onrender.com",
-        "http://localhost:3000"));
+        "http://localhost:3000",
+        "https://outpass-frontend.onrender.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setExposedHeaders(Arrays.asList("Authorization"));

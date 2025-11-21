@@ -3,24 +3,24 @@ package com.mit.outpass.dto;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
-    @NotBlank(message = "Username is required")
-    private String username;
+    @NotBlank(message = "Roll number/ID is required")
+    private String loginId;
     
     @NotBlank(message = "Password is required")
     private String password;
     
-    private String role; // Optional: to specify role during login
+    private String role;
     
     public LoginRequest() {}
     
-    public LoginRequest(String username, String password) {
-        this.username = username;
+    public LoginRequest(String loginId, String password) {
+        this.loginId = loginId;
         this.password = password;
     }
     
     // Getters and Setters
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getLoginId() { return loginId; }
+    public void setLoginId(String loginId) { this.loginId = loginId; }
     
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }

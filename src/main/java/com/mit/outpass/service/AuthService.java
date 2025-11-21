@@ -58,36 +58,26 @@ public class AuthService {
     
     @Value("${app.jwt.expiration}")
     private long jwtExpiration;
+    
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
     
     public LoginResponse authenticateUser(LoginRequest loginRequest) {
-        System.out.println("🔐 AuthService: Attempting login for user: " + loginRequest.getUsername());
+        System.out.println("🔐 AuthService: Attempting login for ID: " + loginRequest.getLoginId());
         
-        Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
+        User user = findUserByLoginId(loginRequest.getLoginId(), loginRequest.getRole())
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
         
-        if (userOptional.isEmpty()) {
-            System.out.println("❌ User not found: " + loginRequest.getUsername());
-            throw new BadCredentialsException("Invalid username or password");
-        }
-        
-        User user = userOptional.get();
         System.out.println("✅ User found: " + user.getUsername() + ", Role: " + user.getRole());
         
-        // DEBUG: Check password format
-        System.out.println("🔑 Stored password length: " + user.getPassword().length());
-        System.out.println("🔑 Stored password starts with: " + (user.getPassword().length() > 10 ? user.getPassword().substring(0, 10) : user.getPassword()));
-        
-        // Use PasswordEncoder for password verification
+        // Password verification
         boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
         
         System.out.println("🔑 Password verification result: " + passwordMatches);
         
         if (!passwordMatches) {
-            // Additional debug: try direct comparison for troubleshooting
-            System.out.println("🔑 Direct comparison: " + loginRequest.getPassword().equals(user.getPassword()));
-            throw new BadCredentialsException("Invalid username or password");
+            throw new BadCredentialsException("Invalid credentials");
         }
         
         // Check if user is active
@@ -95,7 +85,7 @@ public class AuthService {
             throw new BadCredentialsException("Account is deactivated. Please contact administrator.");
         }
         
-        // Role verification (optional)
+        // Role verification
         if (loginRequest.getRole() != null && !loginRequest.getRole().isEmpty()) {
             try {
                 UserRole requestedRole = UserRole.valueOf(loginRequest.getRole().toUpperCase());
@@ -120,6 +110,84 @@ public class AuthService {
         System.out.println("✅ Login successful for: " + response.getUsername() + ", Role: " + response.getRole());
         
         return response;
+    }
+
+    /**
+     * Find user by login ID based on role
+     */
+    private Optional<User> findUserByLoginId(String loginId, String role) {
+        if (role == null) {
+            return findUserByAnyIdentifier(loginId);
+        }
+        
+        try {
+            UserRole userRole = UserRole.valueOf(role.toUpperCase());
+            switch (userRole) {
+                case STUDENT:
+                    // Students use roll number
+                    return studentRepository.findByRollNumber(loginId)
+                            .map(student -> (User) student);
+                case WARDEN:
+                    // Wardens use employee ID
+                    return wardenRepository.findByEmployeeId(loginId)
+                            .map(warden -> (User) warden);
+                case SECURITY:
+                    // Security uses security ID
+                    return securityRepository.findBySecurityId(loginId)
+                            .map(security -> (User) security);
+                case ADMIN:
+                    // Admins use admin ID
+                    return adminRepository.findByAdminId(loginId)
+                            .map(admin -> (User) admin);
+                default:
+                    return userRepository.findByUsername(loginId);
+            }
+        } catch (IllegalArgumentException e) {
+            // Invalid role, fallback to all methods
+            return findUserByAnyIdentifier(loginId);
+        }
+    }
+
+    /**
+     * Fallback method to find user by any identifier
+     */
+    private Optional<User> findUserByAnyIdentifier(String loginId) {
+        // Try roll number (Student)
+        Optional<Student> student = studentRepository.findByRollNumber(loginId);
+        if (student.isPresent()) {
+            System.out.println("✅ Found student by roll number: " + loginId);
+            return Optional.of(student.get());
+        }
+        
+        // Try employee ID (Warden)
+        Optional<Warden> warden = wardenRepository.findByEmployeeId(loginId);
+        if (warden.isPresent()) {
+            System.out.println("✅ Found warden by employee ID: " + loginId);
+            return Optional.of(warden.get());
+        }
+        
+        // Try security ID (Security)
+        Optional<Security> security = securityRepository.findBySecurityId(loginId);
+        if (security.isPresent()) {
+            System.out.println("✅ Found security by security ID: " + loginId);
+            return Optional.of(security.get());
+        }
+        
+        // Try admin ID (Admin)
+        Optional<Admin> admin = adminRepository.findByAdminId(loginId);
+        if (admin.isPresent()) {
+            System.out.println("✅ Found admin by admin ID: " + loginId);
+            return Optional.of(admin.get());
+        }
+        
+        // Finally try username as fallback
+        Optional<User> user = userRepository.findByUsername(loginId);
+        if (user.isPresent()) {
+            System.out.println("✅ Found user by username: " + loginId);
+        } else {
+            System.out.println("❌ No user found for identifier: " + loginId);
+        }
+        return user;
     }
     
     @Transactional
@@ -208,6 +276,7 @@ public class AuthService {
         
         Student savedStudent = studentRepository.save(student);
         System.out.println("✅ Student registered: " + savedStudent.getUsername() + " with encrypted password");
+        System.out.println("🎓 Student Roll Number: " + savedStudent.getRollNumber());
     }
     
     private void createWarden(RegisterRequest request) {
@@ -223,6 +292,7 @@ public class AuthService {
         
         Warden savedWarden = wardenRepository.save(warden);
         System.out.println("✅ Warden registered: " + savedWarden.getUsername() + " with encrypted password");
+        System.out.println("👨‍🏫 Warden Employee ID: " + savedWarden.getEmployeeId());
     }
     
     private void createSecurity(RegisterRequest request) {
@@ -238,6 +308,7 @@ public class AuthService {
         
         Security savedSecurity = securityRepository.save(security);
         System.out.println("✅ Security registered: " + savedSecurity.getUsername() + " with encrypted password");
+        System.out.println("🛡️ Security ID: " + savedSecurity.getSecurityId());
     }
     
     private void createAdmin(RegisterRequest request) {

@@ -3,6 +3,8 @@ package com.mit.outpass.service;
 import com.mit.outpass.controller.AuthController.RegisterRequest;
 import com.mit.outpass.dto.LoginRequest;
 import com.mit.outpass.dto.LoginResponse;
+import com.mit.outpass.dto.ResetPasswordByIdRequest;
+import com.mit.outpass.dto.ForgotPasswordRequest;
 import com.mit.outpass.entity.Admin;
 import com.mit.outpass.entity.Security;
 import com.mit.outpass.entity.Student;
@@ -188,6 +190,61 @@ public class AuthService {
             System.out.println("❌ No user found for identifier: " + loginId);
         }
         return user;
+    }
+    
+    // NEW METHOD: Verify user identity using institutional ID
+    public boolean verifyUserIdentityById(String loginId, String role, String mobileNumber) {
+        System.out.println("🔐 Verifying identity for ID: " + loginId + ", Role: " + role);
+        
+        Optional<User> userOptional = findUserByLoginId(loginId, role);
+        
+        if (userOptional.isEmpty()) {
+            System.out.println("❌ User not found with ID: " + loginId);
+            return false;
+        }
+        
+        User user = userOptional.get();
+        boolean mobileMatches = user.getMobileNumber() != null && user.getMobileNumber().equals(mobileNumber);
+        
+        System.out.println("📱 Mobile verification - Provided: " + mobileNumber + ", Stored: " + user.getMobileNumber() + ", Match: " + mobileMatches);
+        
+        return mobileMatches;
+    }
+    
+    // NEW METHOD: Reset password using institutional ID
+    @Transactional
+    public void resetPasswordById(String loginId, String role, String newPassword) {
+        System.out.println("🔐 Resetting password for ID: " + loginId + ", Role: " + role);
+        
+        User user = findUserByLoginId(loginId, role)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "institutional ID", loginId));
+        
+        if (newPassword.length() < 6) {
+            throw new IllegalArgumentException("New password must be at least 6 characters long");
+        }
+        
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        
+        System.out.println("✅ Password reset successfully for user: " + user.getUsername() + " (" + user.getRole() + ")");
+    }
+    
+    // NEW METHOD: Simple password reset without mobile verification (for admin)
+    @Transactional
+    public void simpleResetPasswordById(String loginId, String role, String newPassword) {
+        System.out.println("🔐 Simple password reset for ID: " + loginId + ", Role: " + role);
+        
+        User user = findUserByLoginId(loginId, role)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "institutional ID", loginId));
+        
+        if (newPassword.length() < 6) {
+            throw new IllegalArgumentException("New password must be at least 6 characters long");
+        }
+        
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        
+        System.out.println("✅ Password reset successfully for user: " + user.getUsername() + " (" + user.getRole() + ")");
     }
     
     @Transactional

@@ -22,7 +22,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     
     // Find student by username (inherited from User)
     Optional<Student> findByUsername(String username);
-    
     // Find students by course
     List<Student> findByCourse(String course);
     

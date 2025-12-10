@@ -19,7 +19,7 @@ public class ResetPasswordByIdRequest {
     private String newPassword;
     
     public ResetPasswordByIdRequest() {}
-    
+
     // Getters and Setters
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }

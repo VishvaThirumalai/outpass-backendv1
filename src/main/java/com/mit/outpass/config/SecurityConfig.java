@@ -70,6 +70,7 @@ public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospe
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
+        "https://outpass-frontend.onrender.com",
         "https://outpass-frontendv1.onrender.com",
         "https://outpass-v2-testing.onrender.com",
         "http://localhost:3000",
